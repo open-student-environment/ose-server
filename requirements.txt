@@ -1,0 +1,2 @@
+git+git://github.com/open-student-environment/open-student-environment.git#egg=ose
+Flask-RESTful==0.3.6
