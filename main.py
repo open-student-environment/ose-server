@@ -10,11 +10,11 @@ api = Api(app)
 cors = CORS(app, origin="*") 
 
 statements = load_statements(
-    '/Users/davidpanou/Documents/eig/open-student-environment/data'
+    '../open-student-environment/data'
     '/statements-brneac3-20180301-20180531'
     '.json')
 agents = load_agents(
-    '/Users/davidpanou/Documents/eig/open-student-environment/data'
+    '../open-student-environment/data'
     '/accounts-brneac3-0-20180630.json')
 
 env = Environment(agents, statements)
