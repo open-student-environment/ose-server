@@ -1,3 +1,4 @@
+from flask.ext.cors import CORS
 from flask import Flask
 from flask_restful import Resource, Api
 from ose.statement import load_statements
@@ -6,6 +7,7 @@ from ose.environment import Environment, get_active_agents, filter_by_users
 
 app = Flask(__name__)
 api = Api(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 statements = load_statements(
     '/Users/davidpanou/Documents/eig/open-student-environment/data'
