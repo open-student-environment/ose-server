@@ -23,7 +23,19 @@ nodes, adjancy = env.nodes, env.structure
 active_agents = get_active_agents(statements)
 nodes, adjancy = filter_by_users(nodes, adjancy, active_agents)
 
+all_nodes = set()
+
+for v in adjancy.values():
+	if v is not []:
+		for i in v:
+			all_nodes.add(i)
+
 adjancy = {k: list(v) for k, v in adjancy.items()}
+
+leafs  = all_nodes.difference(set(adjancy.keys()))
+
+for l in leafs:
+	adjancy[l] = []
 
 
 # env.plot_group_activity(153565, keep_inactive=False)
