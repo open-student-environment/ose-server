@@ -1,3 +1,4 @@
+import json
 from flask_cors import CORS
 from flask import Flask
 from flask_restful import Resource, Api
@@ -7,7 +8,10 @@ from ose.environment import Environment, get_active_agents, filter_by_users
 
 app = Flask(__name__)
 api = Api(app)
-cors = CORS(app, origin="*") 
+cors = CORS(app, origin="*")
+
+with open('./data/etab.json') as f:
+    etab = json.load(f)
 
 statements = load_statements(
     '../open-student-environment/data'
@@ -23,26 +27,22 @@ nodes, adjancy = env.nodes, env.structure
 active_agents = get_active_agents(statements)
 nodes, adjancy = filter_by_users(nodes, adjancy, active_agents)
 
-all_nodes = set()
+etab = [e for e in etab if e['numero_uai'] in nodes]
 
-for v in adjancy.values():
-	if v is not []:
-		for i in v:
-			all_nodes.add(i)
+nodes = set(n for children in adjancy.values() for n in children)
+for node in nodes:
+    if node not in adjancy:
+        adjancy[node] = []
 
 adjancy = {k: list(v) for k, v in adjancy.items()}
-
-leafs  = all_nodes.difference(set(adjancy.keys()))
-
-for l in leafs:
-	adjancy[l] = []
+print(adjancy)
 
 
 # env.plot_group_activity(153565, keep_inactive=False)
 
 class GetNodes(Resource):
     def get(self):
-        return nodes
+        return list(nodes)
 
 
 class GetAdjancy(Resource):
@@ -50,8 +50,14 @@ class GetAdjancy(Resource):
         return adjancy
 
 
+class GetEtab(Resource):
+    def get(self):
+        return etab
+
+
 api.add_resource(GetNodes, '/nodes')
 api.add_resource(GetAdjancy, '/adjancy')
+api.add_resource(GetEtab, '/etab')
 
 if __name__ == '__main__':
     app.run(debug=True)
