@@ -29,20 +29,17 @@ nodes, adjancy = filter_by_users(nodes, adjancy, active_agents)
 
 etab = [e for e in etab if e['numero_uai'] in nodes]
 
-nodes = set(n for children in adjancy.values() for n in children)
+nodes = [{'name': n, 'type': nodes[n]} for children in adjancy.values() for n in children]
 for node in nodes:
-    if node not in adjancy:
-        adjancy[node] = []
+    if node['name'] not in adjancy:
+        adjancy[node['name']] = []
 
 adjancy = {k: list(v) for k, v in adjancy.items()}
-print(adjancy)
 
-
-# env.plot_group_activity(153565, keep_inactive=False)
 
 class GetNodes(Resource):
     def get(self):
-        return list(nodes)
+        return nodes
 
 
 class GetAdjancy(Resource):
