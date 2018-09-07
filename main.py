@@ -30,12 +30,12 @@ nodes, adjancy = filter_by_users(nodes, adjancy, active_agents)
 etab = [e for e in etab if e['numero_uai'] in nodes]
 
 nodes = [{'name': n, 'type': nodes[n]} for children in adjancy.values() for n in children]
-for node in nodes:
-    if node['name'] not in adjancy:
-        adjancy[node['name']] = []
 
 adjancy = {k: list(v) for k, v in adjancy.items()}
 
+for node in nodes:
+    if node['name'] not in adjancy:
+        adjancy[node['name']] = []
 
 class GetNodes(Resource):
     def get(self):
