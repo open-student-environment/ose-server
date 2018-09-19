@@ -1,1 +1,6 @@
-["Strength", "Grit", "Stamina", "Stability", "Agility"]
+{"Strength": "discrete", 
+ "Grit": "continuous",
+ "Stamina": "discrete",
+ "Stability": "continous",
+ "Agility": "continous"
+}
