@@ -59,9 +59,9 @@ def to_scalar(l):
 
 def get_hist(p_val, cont):
     if cont == "discrete":
-        t = np.histogram(p_val,bins=1000)
-    else :
-        t = np.histogram(p_val,bins=1000,density=True)
+        t = np.histogram(p_val, bins=1000)
+    else:
+        t = np.histogram(p_val, bins=1000, density=True)
     return {'values': list(map(to_scalar, list(t[0]))),
             'bins': list(map(to_scalar, list(t[1])))}
 
@@ -74,7 +74,7 @@ for p_key, p_val in params_dist.items():
     params_dist[p_key]['max'] = max(p_val['dist'])
     params_dist[p_key]['min'] = min(p_val['dist'])
     assign = np.random.choice(p_val['dist'], len(nodes), replace=False)
-    del(params_dist[p_key]['dist'])
+    del (params_dist[p_key]['dist'])
     for a, n in enumerate(nodes):
         node_params[n['name']] = {'min': params_dist[p_key]['min'],
                                   'max': params_dist[p_key]['max'],
@@ -116,18 +116,42 @@ class GetNodeParameters(Resource):
 def convert_timestamp_to_datetime(activity):
     if activity is None:
         return None
-    activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
-                                                                   'timestamp']
-                                                               ).strftime(
-        '%d-%m-%Y')
+    if type(activity['timestamp']) != str:
+        activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
+                                                                       'timestamp']
+                                                                   ).strftime(
+            '%Y-%m-%d %H:%M:%S')
     return activity
+
+
+def convert_timestamp_to_datetime_formatted(activity):
+    if activity is None:
+        return None
+    if type(activity['timestamp']) != str:
+        activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
+                                                                       'timestamp']
+                                                                   ).strftime(
+            '%Y-%m-%d %H:%M:%S')
+    return activity['timestamp']
+
+
+class GetNodeActivityFormatted(Resource):
+    def get(self):
+        args = parser.parse_args()
+        x = list(map(convert_timestamp_to_datetime,
+                     env._statements[args['node-name']]))
+        y = len(x) * [1]
+        resp = {'x': x,
+                'y': y,
+                'type': 'scatter'}
+        return resp
 
 
 class GetNodeActivity(Resource):
     def get(self):
         args = parser.parse_args()
         return list(map(convert_timestamp_to_datetime,
-                   env._statements[args['node-name']]))
+                        env._statements[args['node-name']]))
 
 
 api.add_resource(GetNodes, '/nodes')
