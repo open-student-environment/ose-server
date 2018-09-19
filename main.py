@@ -15,7 +15,7 @@ cors = CORS(app, origin="*")
 parser = reqparse.RequestParser()
 parser.add_argument('node-name', type=str, help='The name of the the '
                                                 'requested nodes')
-parser.add_argument('context', type=bool,store_missing=True, help='Does the '
+parser.add_argument('context', type=bool, store_missing=True, help='Does the '
                                                                    'context'
                                                                    'appears '
                                                                    'on node '
@@ -85,13 +85,13 @@ for p_key, p_val in params_dist.items():
                                          'max': params_dist[p_key]['max'],
                                          'value': (assign[a] -
                                                    params_dist[p_key][
-                                                       'min'])*100 / (
-                                                 params_dist[
-                                                                      p_key][
-                                                                      'max'] -
-                                                                  params_dist[
-                                                                      p_key][
-                                                                      'min']),
+                                                       'min']) * 100 / (
+                                                          params_dist[
+                                                              p_key][
+                                                              'max'] -
+                                                          params_dist[
+                                                              p_key][
+                                                              'min']),
                                          'raw': assign[a]
                                          }
 
@@ -115,36 +115,45 @@ class GetEtab(Resource):
     def get(self):
         return etab
 
+
+def get_format(name, params):
+    def create_dict(a, b):
+        return {'name': a, 'value': b}
+
+    resp = {}
+    resp['name'] = name
+    resp['series'] = [create_dict(a, b) for a, b in zip(params['hist']['bins'],
+                                                        params[
+                                                            'hist'][
+                                                            'values'])]
+    return resp
+
 class GetPamaters(Resource):
     def get(self):
-        resp = {}
-        resp['series'] = [get_formatted_params(k, p) for k,
-                                                         p in
-                          node_params[params_dist].items()]
-        return params_dist
+        resp = [get_format(k,v) for k,v in params_dist.items()]
+        return resp
+
 
 def get_formatted_params(name, params):
-    resp = { 'name': name,
-             'value' : params['value'],
-             'min': params['min'],
-             'max': params['max'],
-             'raw': params['raw']
-             }
+    resp = {'name': name,
+            'value': params['value']
+            }
     return resp
+
 
 class GetNodeParameters(Resource):
     def get(self):
         args = parser.parse_args()
         resp = {}
         if args['context']:
-            resp['context'] = [{k:params_dist[k]['hist'] for k in
-                            params_dist.keys()}]
+            resp['context'] = [{k: params_dist[k]['hist'] for k in
+                                params_dist.keys()}]
         if node_params[args['node-name']]:
             resp['name'] = 'node-parameters'
-            resp['series'] = [get_formatted_params(k,p) for k,
-                                                            p in
+            resp['series'] = [get_formatted_params(k, p) for k,
+                                                             p in
                               node_params[args['node-name']].items()]
-        return resp#node_params[args['node-name']]
+        return resp  # node_params[args['node-name']]
 
 
 def convert_timestamp_to_datetime(activity):
@@ -152,11 +161,10 @@ def convert_timestamp_to_datetime(activity):
         return None
     if type(activity['timestamp']) != str:
         activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
-                                                                   'timestamp']
+                                                                       'timestamp']
                                                                    ).strftime(
             '%Y-%m-%d %H:%M:%S')
     return activity
-
 
 
 def convert_timestamp_to_datetime_formatted(activity):
@@ -164,7 +172,7 @@ def convert_timestamp_to_datetime_formatted(activity):
         return None
     if type(activity['timestamp']) != str:
         activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
-                                                                  'timestamp']
+                                                                       'timestamp']
                                                                    ).strftime(
             '%Y-%m-%d %H:%M:%S')
     return activity['timestamp']
