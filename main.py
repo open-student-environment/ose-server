@@ -7,6 +7,7 @@ from ose.agent import load_agents
 from ose.environment import Environment, get_active_agents, filter_by_users
 import numpy as np
 from collections import defaultdict
+import datetime
 
 app = Flask(__name__)
 api = Api(app)
@@ -112,10 +113,21 @@ class GetNodeParameters(Resource):
         return node_params[args['node-name']]
 
 
+def convert_timestamp_to_datetime(activity):
+    if activity is None:
+        return None
+    activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
+                                                                   'timestamp']
+                                                               ).strftime(
+        '%d-%m-%Y')
+    return activity
+
+
 class GetNodeActivity(Resource):
     def get(self):
         args = parser.parse_args()
-        return env._statements[args['node-name']]
+        return list(map(convert_timestamp_to_datetime,
+                   env._statements[args['node-name']]))
 
 
 api.add_resource(GetNodes, '/nodes')
