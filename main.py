@@ -46,8 +46,8 @@ adjancy = {k: list(v) for k, v in adjancy.items()}
 
 
 def generate_distrib():
-    mn = np.random.randint(0, 100)
-    std = np.random.randint(0, 20)
+    mn = np.random.randint(40, 100)
+    std = np.random.randint(10, 20)
     return list(map(to_scalar, np.random.normal(mn, std,
                                                 len(nodes))))
 
@@ -56,22 +56,26 @@ def to_scalar(l):
     return np.asscalar(l)
 
 
-def get_hist(p_val):
-    t = np.histogram(p_val)
+def get_hist(p_val, cont):
+    if cont == "discrete":
+        t = np.histogram(p_val,bins=1000)
+    else :
+        t = np.histogram(p_val,bins=1000,density=True)
     return {'values': list(map(to_scalar, list(t[0]))),
             'bins': list(map(to_scalar, list(t[1])))}
 
 
 node_params = defaultdict(dict)
-params_dist = {k: {'dist': list(generate_distrib())} for k in params}
+params_dist = {k: {'dist': list(generate_distrib())} for k in params.keys()}
 
 for p_key, p_val in params_dist.items():
-    params_dist[p_key]['hist'] = get_hist(p_val['dist'])
+    params_dist[p_key]['hist'] = get_hist(p_val['dist'], params[p_key])
     params_dist[p_key]['max'] = max(p_val['dist'])
     params_dist[p_key]['min'] = min(p_val['dist'])
     assign = np.random.choice(p_val['dist'], len(nodes), replace=False)
+    del(params_dist[p_key]['dist'])
     for a, n in enumerate(nodes):
-        node_params[n["name"]] = {'min': params_dist[p_key]['min'],
+        node_params[n['name']] = {'min': params_dist[p_key]['min'],
                                   'max': params_dist[p_key]['max'],
                                   'value': assign[a]
                                   }
