@@ -85,7 +85,8 @@ for p_key, p_val in params_dist.items():
                                          'max': params_dist[p_key]['max'],
                                          'value': (assign[a] -
                                                    params_dist[p_key][
-                                                       'min']) / (params_dist[
+                                                       'min'])*100 / (
+                                                 params_dist[
                                                                       p_key][
                                                                       'max'] -
                                                                   params_dist[
@@ -114,9 +115,12 @@ class GetEtab(Resource):
     def get(self):
         return etab
 
-
 class GetPamaters(Resource):
     def get(self):
+        resp = {}
+        resp['series'] = [get_formatted_params(k, p) for k,
+                                                         p in
+                          node_params[params_dist].items()]
         return params_dist
 
 def get_formatted_params(name, params):
@@ -148,7 +152,7 @@ def convert_timestamp_to_datetime(activity):
         return None
     if type(activity['timestamp']) != str:
         activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
-                                                                       'timestamp']
+                                                                   'timestamp']
                                                                    ).strftime(
             '%Y-%m-%d %H:%M:%S')
     return activity
@@ -160,7 +164,7 @@ def convert_timestamp_to_datetime_formatted(activity):
         return None
     if type(activity['timestamp']) != str:
         activity['timestamp'] = datetime.datetime.utcfromtimestamp(activity[
-                                                                       'timestamp']
+                                                                  'timestamp']
                                                                    ).strftime(
             '%Y-%m-%d %H:%M:%S')
     return activity['timestamp']
