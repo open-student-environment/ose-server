@@ -15,6 +15,11 @@ cors = CORS(app, origin="*")
 parser = reqparse.RequestParser()
 parser.add_argument('node-name', type=str, help='The name of the the '
                                                 'requested nodes')
+parser.add_argument('context', type=bool,store_missing=True, help='Does the '
+                                                                   'context'
+                                                                   'appears '
+                                                                   'on node '
+                                                                   'parameters')
 
 with open('./data/etab.json') as f:
     etab = json.load(f)
@@ -76,10 +81,18 @@ for p_key, p_val in params_dist.items():
     assign = np.random.choice(p_val['dist'], len(nodes), replace=False)
     del (params_dist[p_key]['dist'])
     for a, n in enumerate(nodes):
-        node_params[n['name']] = {'min': params_dist[p_key]['min'],
-                                  'max': params_dist[p_key]['max'],
-                                  'value': assign[a]
-                                  }
+        node_params[n['name']][p_key] = {'min': params_dist[p_key]['min'],
+                                         'max': params_dist[p_key]['max'],
+                                         'value': (assign[a] -
+                                                   params_dist[p_key][
+                                                       'min']) / (params_dist[
+                                                                      p_key][
+                                                                      'max'] -
+                                                                  params_dist[
+                                                                      p_key][
+                                                                      'min']),
+                                         'raw': assign[a]
+                                         }
 
 
 class GetParametersNames(Resource):
@@ -106,11 +119,28 @@ class GetPamaters(Resource):
     def get(self):
         return params_dist
 
+def get_formatted_params(name, params):
+    resp = { 'name': name,
+             'value' : params['value'],
+             'min': params['min'],
+             'max': params['max'],
+             'raw': params['raw']
+             }
+    return resp
 
 class GetNodeParameters(Resource):
     def get(self):
         args = parser.parse_args()
-        return node_params[args['node-name']]
+        resp = {}
+        if args['context']:
+            resp['context'] = [{k:params_dist[k]['hist'] for k in
+                            params_dist.keys()}]
+        if node_params[args['node-name']]:
+            resp['name'] = 'node-parameters'
+            resp['series'] = [get_formatted_params(k,p) for k,
+                                                            p in
+                              node_params[args['node-name']].items()]
+        return resp#node_params[args['node-name']]
 
 
 def convert_timestamp_to_datetime(activity):
@@ -122,6 +152,7 @@ def convert_timestamp_to_datetime(activity):
                                                                    ).strftime(
             '%Y-%m-%d %H:%M:%S')
     return activity
+
 
 
 def convert_timestamp_to_datetime_formatted(activity):
