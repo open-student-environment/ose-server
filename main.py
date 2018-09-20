@@ -24,7 +24,7 @@ parser.add_argument('context', type=bool, store_missing=True, help='Does the '
 with open('./data/etab.json') as f:
     etab = json.load(f)
 with open('./data/params.json') as f:
-    params = json.load(f)
+    _params = json.load(f)
 
 statements = load_statements(
     '../open-student-environment/data'
@@ -73,10 +73,10 @@ def get_hist(p_val, cont):
 
 
 node_params = defaultdict(dict)
-params_dist = {k: {'dist': list(generate_distrib())} for k in params.keys()}
+params_dist = {k: {'dist': list(generate_distrib())} for k in _params.keys()}
 
 for p_key, p_val in params_dist.items():
-    params_dist[p_key]['hist'] = get_hist(p_val['dist'], params[p_key])
+    params_dist[p_key]['hist'] = get_hist(p_val['dist'], _params[p_key])
     params_dist[p_key]['max'] = max(p_val['dist'])
     params_dist[p_key]['min'] = min(p_val['dist'])
     assign = np.random.choice(p_val['dist'], len(nodes), replace=False)
@@ -123,6 +123,7 @@ def get_format(name, params):
 
     resp = {}
     resp['name'] = name
+    resp['type'] = _params[name]
     resp['series'] = [create_dict(a, b) for a, b in zip(params['hist']['bins'],
                                                         params[
                                                             'hist'][
