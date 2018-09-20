@@ -71,6 +71,7 @@ def get_hist(p_val, cont):
             'bins': list(map(to_scalar, list(t[1])))}
 
 
+
 node_params = defaultdict(dict)
 params_dist = {k: {'dist': list(generate_distrib())} for k in params.keys()}
 
@@ -130,7 +131,7 @@ def get_format(name, params):
 
 class GetPamaters(Resource):
     def get(self):
-        resp = [get_format(k,v) for k,v in params_dist.items()]
+        resp = [get_format(k, v) for k, v in params_dist.items()]
         return resp
 
 
@@ -146,13 +147,12 @@ class GetNodeParameters(Resource):
         args = parser.parse_args()
         resp = {}
         if args['context']:
-            resp['context'] = [{k: params_dist[k]['hist'] for k in
-                                params_dist.keys()}]
+            resp['context'] = [get_format(k, v) for k, v in
+                                    params_dist.items()]
         if node_params[args['node-name']]:
             resp['name'] = 'node-parameters'
-            resp['series'] = [get_formatted_params(k, p) for k,
-                                                             p in
-                              node_params[args['node-name']].items()]
+            resp['series'] = [get_formatted_params(k, p) for k,p in
+                                    node_params[args['node-name']].items()]
         return resp  # node_params[args['node-name']]
 
 
