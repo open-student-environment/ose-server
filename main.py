@@ -37,7 +37,9 @@ agents = load_agents(
 env = Environment(agents, statements)
 nodes, adjancy = env.nodes, env.structure
 
-active_agents = get_active_agents(statements)
+active_agents = get_active_agents(statements[:100])
+nodes_filtered = ["804f411c-ecf7-4ba7-b0d9-eb162b8ec1e1",
+                  "55db4891-9ea6-4c5d-b55d-2063f815d90d"]
 nodes, adjancy = filter_by_users(nodes, adjancy, active_agents)
 
 etab = [e for e in etab if e['numero_uai'] in nodes]
@@ -69,7 +71,6 @@ def get_hist(p_val, cont):
         t = np.histogram(p_val, bins=1000, density=True)
     return {'values': list(map(to_scalar, list(t[0]))),
             'bins': list(map(to_scalar, list(t[1])))}
-
 
 
 node_params = defaultdict(dict)
@@ -130,6 +131,7 @@ def get_format(name, params):
                                                             'values'])]
     return resp
 
+
 class GetPamaters(Resource):
     def get(self):
         resp = [get_format(k, v) for k, v in params_dist.items()]
@@ -149,11 +151,11 @@ class GetNodeParameters(Resource):
         resp = {}
         if args['context']:
             resp['context'] = [get_format(k, v) for k, v in
-                                    params_dist.items()]
+                               params_dist.items()]
         if node_params[args['node-name']]:
             resp['name'] = 'node-parameters'
-            resp['series'] = [get_formatted_params(k, p) for k,p in
-                                    node_params[args['node-name']].items()]
+            resp['series'] = [get_formatted_params(k, p) for k, p in
+                              node_params[args['node-name']].items()]
         return resp  # node_params[args['node-name']]
 
 
