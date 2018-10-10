@@ -1,0 +1,6 @@
+{"Strength": "discrete", 
+ "Grit": "continuous",
+ "Stamina": "discrete",
+ "Stability": "continous",
+ "Agility": "continous"
+}
