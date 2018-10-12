@@ -101,19 +101,6 @@ for p_key, p_val in params_dist.items():
     assign = np.random.choice(p_val['dist'], len(nodes), replace=False)
     del (params_dist[p_key]['dist'])
     for a, n in enumerate(nodes):
-        # node_params[n['name']][p_key] = {'min': params_dist[p_key]['min'],
-        #         #                                  'max': params_dist[p_key]['max'],
-        #         #                                  'value': (assign[a] -
-        #         #                                            params_dist[p_key][
-        #         #                                                'min']) * 100 / (
-        #         #                                                   params_dist[
-        #         #                                                       p_key][
-        #         #                                                       'max'] -
-        #         #                                                   params_dist[
-        #         #                                                       p_key][
-        #         #                                                       'min']),
-        #         #                                  'raw': assign[a]
-        #         #                                  }
         if n['type'] != 'groupe':
             n['indicators'][p_key] = assign[a]
 
