@@ -35,46 +35,64 @@ agents = load_agents(
     '/accounts-brneac3-0-20180630.json')
 
 env = Environment(agents, statements)
-nodes, adjancy = env.nodes, env.structure
+nodes, adjacency = env.nodes, env.structure
 
-active_agents = get_active_agents(statements[:100])
+active_agents = get_active_agents(statements)#[:100])
 nodes_filtered = ["804f411c-ecf7-4ba7-b0d9-eb162b8ec1e1",
                   "55db4891-9ea6-4c5d-b55d-2063f815d90d"]
-nodes, adjancy = filter_by_users(nodes, adjancy, active_agents)
+nodes, adjacency = filter_by_users(nodes, adjacency, active_agents)
 
 etab = [e for e in etab if e['numero_uai'] in nodes]
 
-nodes = [{'name': str(n), 'type': nodes[n]} for children in adjancy.values()
-         for n in children]
-for node in nodes:
-    if node['name'] not in adjancy:
-        adjancy[node['name']] = []
+def generate_name():
+    return "aaaa"
 
-adjancy = {k: list(v) for k, v in adjancy.items()}
+def create_nodes(adj, nds):
+    def create_node_description(n, typ):
+        if typ == 'groupe':
+            return {
+                'id': str(n),
+                'type': typ,
+                'name': "groupe {}".format(str(n))
+            }
+        else:
+            return {
+                'id': str(n),
+                'type': typ,
+                'name': generate_name(),
+                'indicators':  {}
+            }
+
+    nds = [create_node_description(n, nds[n]) for children in
+           adj.values()
+           for n in children]
+    for nd in nds:
+        if nd['name'] not in adj:
+            adj[nd['name']] = []
+    adj = {k: list(v) for k, v in adj.items()}
+    return nds, adj
 
 
-def generate_distrib():
+nodes, adjacency = create_nodes(adjacency, nodes)
+
+
+def generate_distrib(n):
     mn = np.random.randint(40, 100)
     std = np.random.randint(10, 20)
-    return list(map(to_scalar, np.random.normal(mn, std,
-                                                len(nodes))))
-
-
-def to_scalar(l):
-    return np.asscalar(l)
-
+    return list(map(np.asscalar, np.random.normal(mn, std,
+                                                  n)))
 
 def get_hist(p_val, cont):
     if cont == "discrete":
         t = np.histogram(p_val, bins=1000)
     else:
         t = np.histogram(p_val, bins=1000, density=True)
-    return {'values': list(map(to_scalar, list(t[0]))),
-            'bins': list(map(to_scalar, list(t[1])))}
-
+    return {'values': list(map(np.asscalar, list(t[0]))),
+            'bins': list(map(np.asscalar, list(t[1])))}
 
 node_params = defaultdict(dict)
-params_dist = {k: {'dist': list(generate_distrib())} for k in _params.keys()}
+params_dist = {k: {'dist': list(generate_distrib(len(nodes)))} for k in
+               _params.keys()}
 
 for p_key, p_val in params_dist.items():
     params_dist[p_key]['hist'] = get_hist(p_val['dist'], _params[p_key])
@@ -83,20 +101,21 @@ for p_key, p_val in params_dist.items():
     assign = np.random.choice(p_val['dist'], len(nodes), replace=False)
     del (params_dist[p_key]['dist'])
     for a, n in enumerate(nodes):
-        node_params[n['name']][p_key] = {'min': params_dist[p_key]['min'],
-                                         'max': params_dist[p_key]['max'],
-                                         'value': (assign[a] -
-                                                   params_dist[p_key][
-                                                       'min']) * 100 / (
-                                                          params_dist[
-                                                              p_key][
-                                                              'max'] -
-                                                          params_dist[
-                                                              p_key][
-                                                              'min']),
-                                         'raw': assign[a]
-                                         }
-
+        # node_params[n['name']][p_key] = {'min': params_dist[p_key]['min'],
+        #         #                                  'max': params_dist[p_key]['max'],
+        #         #                                  'value': (assign[a] -
+        #         #                                            params_dist[p_key][
+        #         #                                                'min']) * 100 / (
+        #         #                                                   params_dist[
+        #         #                                                       p_key][
+        #         #                                                       'max'] -
+        #         #                                                   params_dist[
+        #         #                                                       p_key][
+        #         #                                                       'min']),
+        #         #                                  'raw': assign[a]
+        #         #                                  }
+        if n['type'] != 'groupe':
+            n['indicators'][p_key] = assign[a]
 
 class GetParametersNames(Resource):
     def get(self):
@@ -110,7 +129,7 @@ class GetNodes(Resource):
 
 class GetAdjancy(Resource):
     def get(self):
-        return adjancy
+        return adjacency
 
 
 class GetEtab(Resource):
@@ -156,7 +175,7 @@ class GetNodeParameters(Resource):
             resp['name'] = 'node-parameters'
             resp['series'] = [get_formatted_params(k, p) for k, p in
                               node_params[args['node-name']].items()]
-        return resp  # node_params[args['node-name']]
+        return resp
 
 
 def convert_timestamp_to_datetime(activity):
