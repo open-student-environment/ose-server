@@ -11,15 +11,12 @@ from numpy.random import choice, randint
 from collections import defaultdict
 import datetime
 
-fn = "prenoms.csv"
+fn = "names.csv"
 with open(fn, 'r') as inp:
         names = []
+        inp.readline()
         for l in inp.readlines():
                 names.append(l.split(';')[-1])
-
-grades = ['CM1', 'CM2', '6eme', '5eme']
-locations = ['Paris', 'Créteil', 'Versaille', 'Cean']
-school = ["Annexe E.N.", "Lucie Aubrac", "Auriacombe", "Georges Bastide 1", "Georges Bastide 2", "Camille Claudel (anciennement Bellefontaine)", "Le Béarnais", "Maurice Bécanne", "Paul Bert", "Étienne Billières", "Bonnefoy", "Borderouge Nord", "Léonce Bourliaguet", "Buffon", "Buissonnière", "Calas", "Château d'Ancely", "Château de l'Hers", "Jean Chaubet", "Courrège", "Pierre et Marie Curie", "Cuvier", "André Daste", "Didier Daurat", "Sylvain Dauriac", "Jean Dieuzaide", "Françoise Dolto", "Armand Duportal", "Gaston Dupouy", "Fabre", "Clément Falcucci", "Falguière", "Daniel Faucher", "Jules Ferry", "Fleurance", "Fontaine Bayonne", "Fontaine Casselardit", "Alain Fournier", "Alexandre Fourtanier", "Anatole France", "Jean Gallia 1", "Jean Gallia 2", "Ginestous", "La Gloire", "Grand Selve", "Henri Guillaumet", "Hameau 47", "Victor Hugo", "Georges Hyon", "Maurice Jacquier", "Jean Jaurès", "Jolimont", "Jules Julien", "La Juncasse", "Lac (École du)", "Léo Lagrange", "Lakanal", "Lamartine", "Lapujade", "Lardenne", "Ferdinand de Lesseps", "Armand Leygue", "Limayrac-Jérôme Pugens", "Littré", "Jean Macé", "La Maourine", "Marengo-Périole", "Marengo-Reille", "Matabiau", "Merly", "Louise Michel", "Michelet", "Michoun A", "Michoun B", "Molière", "Monge", "Jean Monnet", "Montaudran", "Jean Moulin", "Moulis Croix-Bénite", "Alfred de Musset", "Nègreneys", "Niboul", "Les Oustalous", "Papus", "Patte-d'Oie", "Pech David", "Petit Gragnague", "Les Pinhous", "Polygone", "Port Garaud", "Pouvourville", "Rangueil", "Ernest Renan", "Ricardie", "Ronsard", "Saouzelong", "Sarrat", "Sept Deniers", "Hyacinthe Sermet", "Ariane Soupetard", "Tabar", "La Terrasse", "Les Tibaous", "Toec", "Elsa Triolet", "Les Vergers", "Viollet Le Duc"]
 
 def name_generator(names):
     i = 0
@@ -63,12 +60,11 @@ agents = load_agents(
 env = Environment(agents, statements)
 nodes, adjacency = env.nodes, env.structure
 
-active_agents = get_active_agents(statements[:50000])
+active_agents = get_active_agents(statements[:25000])
 nodes, adjacency = filter_by_users(nodes, adjacency, active_agents)
 adjacency = {str(k): v for k, v in adjacency.items()}
 
 etab = [e for e in etab if e['numero_uai'] in nodes]
-
 
 def create_nodes(adj, nds, func_name,env=env):
     schools = ["Annexe E.N.", "Lucie Aubrac", "Auriacombe", "Georges Bastide 1", "Georges Bastide 2", "Camille Claudel (anciennement Bellefontaine)", "Le Béarnais", "Maurice Bécanne", "Paul Bert", "Étienne Billières", "Bonnefoy", "Borderouge Nord", "Léonce Bourliaguet", "Buffon", "Buissonnière", "Calas", "Château d'Ancely", "Château de l'Hers", "Jean Chaubet", "Courrège", "Pierre et Marie Curie", "Cuvier", "André Daste", "Didier Daurat", "Sylvain Dauriac", "Jean Dieuzaide", "Françoise Dolto", "Armand Duportal", "Gaston Dupouy", "Fabre", "Clément Falcucci", "Falguière", "Daniel Faucher", "Jules Ferry", "Fleurance", "Fontaine Bayonne", "Fontaine Casselardit", "Alain Fournier", "Alexandre Fourtanier", "Anatole France", "Jean Gallia 1", "Jean Gallia 2", "Ginestous", "La Gloire", "Grand Selve", "Henri Guillaumet", "Hameau 47", "Victor Hugo", "Georges Hyon", "Maurice Jacquier", "Jean Jaurès", "Jolimont", "Jules Julien", "La Juncasse", "Lac (École du)", "Léo Lagrange", "Lakanal", "Lamartine", "Lapujade", "Lardenne", "Ferdinand de Lesseps", "Armand Leygue", "Limayrac-Jérôme Pugens", "Littré", "Jean Macé", "La Maourine", "Marengo-Périole", "Marengo-Reille", "Matabiau", "Merly", "Louise Michel", "Michelet", "Michoun A", "Michoun B", "Molière", "Monge", "Jean Monnet", "Montaudran", "Jean Moulin", "Moulis Croix-Bénite", "Alfred de Musset", "Nègreneys", "Niboul", "Les Oustalous", "Papus", "Patte-d'Oie", "Pech David", "Petit Gragnague", "Les Pinhous", "Polygone", "Port Garaud", "Pouvourville", "Rangueil", "Ernest Renan", "Ricardie", "Ronsard", "Saouzelong", "Sarrat", "Sept Deniers", "Hyacinthe Sermet", "Ariane Soupetard", "Tabar", "La Terrasse", "Les Tibaous", "Toec", "Elsa Triolet", "Les Vergers", "Viollet Le Duc"]
