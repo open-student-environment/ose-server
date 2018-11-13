@@ -142,6 +142,7 @@ for p_key, p_val in params_dist.items():
     for a, n in enumerate(nodes):
         if n['type'] != 'groupe' and n['type'] != 'classe' :
             n['indicators'][p_key] = assign[a]
+            node_params[n['id']][p_key] = n['indicators'][p_key]
 
 class GetParametersNames(Resource):
     def get(self):
@@ -185,7 +186,7 @@ class GetPamaters(Resource):
 
 def get_formatted_params(name, params):
     resp = {'name': name,
-            'value': params['value']
+            'value': params
             }
     return resp
 
@@ -198,7 +199,8 @@ class GetNodeParameters(Resource):
             resp['context'] = [get_format(k, v) for k, v in
                                params_dist.items()]
         if node_params[args['node-name']]:
-            resp['name'] = 'node-parameters'
+            print(node_params[args['node-name']])
+            resp['name'] = 'indicators'
             resp['series'] = [get_formatted_params(k, p) for k, p in
                               node_params[args['node-name']].items()]
         return resp
